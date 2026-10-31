@@ -49,8 +49,8 @@ export function DataProvider({ children }) {
     loading,
     error,
     refresh: () => loadAll(true),
-    updateUserStatus: async (id, status) => {
-      await api.updateUser(id, status);
+    updateUserStatus: async (id, status, reason) => {
+      await api.updateUser(id, status, reason);
       await loadAll(true);
     },
     deleteUser: async (id) => {

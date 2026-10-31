@@ -55,7 +55,7 @@ export const api = {
     const qs = params.toString();
     return request(`/api/users${qs ? `?${qs}` : ''}`);
   },
-  updateUser: (id, status) => request(`/api/users/${id}`, { method: 'PATCH', body: { status } }),
+  updateUser: (id, status, reason) => request(`/api/users/${id}`, { method: 'PATCH', body: { status, reason } }),
   deleteUser: (id) => request(`/api/users/${id}`, { method: 'DELETE' }),
 
   admins: () => request('/api/admins'),

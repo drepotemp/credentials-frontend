@@ -18,8 +18,11 @@ export default function Users() {
   const [localError, setLocalError] = useState('');
   const [busyId, setBusyId] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [rejectTarget, setRejectTarget] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
 
   const error = localError || globalError;
 
@@ -33,16 +36,39 @@ export default function Users() {
     return matchesTab && matchesSearch;
   });
 
-  async function decide(user, status) {
+  async function decide(user, status, reason) {
     setBusyId(user.id);
     setLocalError('');
     try {
-      await updateUserStatus(user.id, status);
+      await updateUserStatus(user.id, status, reason);
       setEditingUser(null);
+      setRejectTarget(null);
+      setRejectReason('');
     } catch (err) {
       setLocalError(err.message || 'Action failed.');
     } finally {
       setBusyId(null);
+    }
+  }
+
+  function openReject(user) {
+    setEditingUser(null);
+    setRejectTarget(user);
+    setRejectReason('');
+  }
+
+  async function confirmReject() {
+    if (!rejectTarget) return;
+    setRejecting(true);
+    setLocalError('');
+    try {
+      await updateUserStatus(rejectTarget.id, 'rejected', rejectReason.trim() || 'Your registration did not meet the requirements.');
+      setRejectTarget(null);
+      setRejectReason('');
+    } catch (err) {
+      setLocalError(err.message || 'Reject failed.');
+    } finally {
+      setRejecting(false);
     }
   }
 
@@ -170,7 +196,7 @@ export default function Users() {
                           type="button"
                           className="btn btn-sm btn-reject"
                           title="Reject"
-                          onClick={() => decide(user, 'rejected')}
+                          onClick={() => openReject(user)}
                         >
                           ❌
                         </button>
@@ -213,7 +239,7 @@ export default function Users() {
                   <button
                     type="button"
                     className="btn btn-reject"
-                    onClick={() => decide(editingUser, 'rejected')}
+                    onClick={() => openReject(editingUser)}
                   >
                     ❌ Reject User
                   </button>
@@ -268,6 +294,56 @@ export default function Users() {
                     type="button"
                     className="btn"
                     onClick={() => setDeleteTarget(null)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {rejectTarget && (
+        <div
+          className="modal-overlay"
+          onClick={() => (rejecting ? null : setRejectTarget(null))}
+        >
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            {rejecting ? (
+              <div className="modal-loading">
+                <span className="spinner" />
+                <div>Rejecting…</div>
+              </div>
+            ) : (
+              <>
+                <div className="modal-title">Reject User</div>
+                <div className="modal-desc">
+                  Provide a reason for rejecting <strong>{rejectTarget.email}</strong>. This will be sent to the user.
+                </div>
+                <div className="modal-actions">
+                  <textarea
+                    className="input"
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    placeholder="Enter rejection reason..."
+                    rows={4}
+                    style={{ resize: 'vertical', minHeight: 80, width: '100%' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-reject"
+                    onClick={confirmReject}
+                  >
+                    ❌ Confirm Reject
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => {
+                      setRejectTarget(null);
+                      setRejectReason('');
+                    }}
                   >
                     Cancel
                   </button>
