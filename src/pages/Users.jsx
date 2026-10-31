@@ -287,6 +287,7 @@ export default function Users() {
                     type="button"
                     className="btn btn-danger"
                     onClick={confirmDelete}
+                    disabled={deleting}
                   >
                     🗑️ Delete User
                   </button>
@@ -294,6 +295,7 @@ export default function Users() {
                     type="button"
                     className="btn"
                     onClick={() => setDeleteTarget(null)}
+                    disabled={deleting}
                   >
                     Cancel
                   </button>
@@ -329,11 +331,13 @@ export default function Users() {
                     placeholder="Enter rejection reason..."
                     rows={4}
                     style={{ resize: 'vertical', minHeight: 80, width: '100%' }}
+                    disabled={rejecting}
                   />
                   <button
                     type="button"
                     className="btn btn-reject"
                     onClick={confirmReject}
+                    disabled={rejecting}
                   >
                     ❌ Confirm Reject
                   </button>
@@ -344,6 +348,7 @@ export default function Users() {
                       setRejectTarget(null);
                       setRejectReason('');
                     }}
+                    disabled={rejecting}
                   >
                     Cancel
                   </button>

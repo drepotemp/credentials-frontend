@@ -12,8 +12,8 @@ export function DataProvider({ children }) {
   const [lastLoad, setLastLoad] = useState(0);
 
   const loadAll = useCallback(async (force = false) => {
-    // Cache for 30 seconds unless forced
-    if (!force && Date.now() - lastLoad < 30000 && stats && users.length > 0) {
+    // Cache for 5 seconds unless forced
+    if (!force && Date.now() - lastLoad < 5000 && stats && users.length > 0) {
       return;
     }
 
